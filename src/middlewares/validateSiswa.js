@@ -4,6 +4,8 @@ import { ApiError } from './errorHandler.js';
 
 const kodeField = () =>
   body('kode_siswa')
+    .isString()
+    .withMessage('Kode siswa harus berupa teks')
     .trim()
     .notEmpty()
     .withMessage('Kode siswa wajib diisi')
@@ -14,6 +16,8 @@ const kodeField = () =>
 
 const textField = (field, label, max) =>
   body(field)
+    .isString()
+    .withMessage(`${label} harus berupa teks`)
     .trim()
     .notEmpty()
     .withMessage(`${label} wajib diisi`)
@@ -22,6 +26,8 @@ const textField = (field, label, max) =>
 
 const tanggalField = () =>
   body('tgl_lahir_siswa')
+    .isString()
+    .withMessage('Tanggal lahir harus berupa teks')
     .trim()
     .matches(/^\d{4}-\d{2}-\d{2}$/)
     .withMessage('Tanggal lahir harus berformat YYYY-MM-DD')

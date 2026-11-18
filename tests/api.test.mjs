@@ -112,6 +112,15 @@ test('GET /api/siswa?page=abc&limit=abc memakai nilai bawaan', async () => {
   assert.equal(body.data.limit, 10);
 });
 
+test('GET /api/siswa?page=999999999999999999999 tidak menyebabkan 500', async () => {
+  const { response, body } = await request(
+    '/api/siswa?page=999999999999999999999&limit=1',
+  );
+
+  assert.equal(response.status, 400);
+  assert.equal(body.success, false);
+});
+
 test('DELETE /api/siswa/:kode menghapus data', async () => {
   const deleted = await request(`/api/siswa/${kode}`, { method: 'DELETE' });
 

@@ -3,14 +3,27 @@ import { Op } from 'sequelize';
 import { ApiError } from '../middlewares/errorHandler.js';
 import Siswa from '../models/Siswa.js';
 
-const parsePagination = (query) => {
-  const parsedPage = Number.parseInt(query.page, 10);
-  const parsedLimit = Number.parseInt(query.limit, 10);
-  const page = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-  const requestedLimit =
-    Number.isInteger(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10;
+const MAX_PAGE = 1_000_000;
 
-  return { page, limit: Math.min(requestedLimit, 100) };
+const parsePositive = (value, fallback, max) => {
+  if (value === undefined) return fallback;
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  if (!Number.isInteger(parsed) || parsed < 1 || parsed > max) return null;
+
+  return parsed;
+};
+
+const parsePagination = (query) => {
+  const page = parsePositive(query.page, 1, MAX_PAGE);
+  const limit = parsePositive(query.limit, 10, 100);
+
+  if (page === null || limit === null) {
+    throw new ApiError(400, 'Nilai page atau limit tidak valid');
+  }
+
+  return { page, limit };
 };
 
 const pickEditableFields = (body) => ({

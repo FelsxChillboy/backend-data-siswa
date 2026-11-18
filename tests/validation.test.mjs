@@ -95,6 +95,28 @@ test('validasi menerima tanggal 2005-01-30 dan kode SIS-001', async () => {
   });
 });
 
+test('validasi menolak nama_siswa berupa objek', async () => {
+  await withServer(async (baseUrl) => {
+    const response = await post(baseUrl, '/create', {
+      ...validSiswa,
+      nama_siswa: { a: 1 },
+    });
+
+    assert.equal(response.status, 400);
+  });
+});
+
+test('validasi menolak tgl_lahir_siswa berupa array', async () => {
+  await withServer(async (baseUrl) => {
+    const response = await post(baseUrl, '/create', {
+      ...validSiswa,
+      tgl_lahir_siswa: ['2005-01-30'],
+    });
+
+    assert.equal(response.status, 400);
+  });
+});
+
 test('validasi update tidak mewajibkan kode_siswa di body', async () => {
   await withServer(async (baseUrl) => {
     const { kode_siswa, ...payload } = validSiswa;
