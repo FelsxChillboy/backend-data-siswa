@@ -112,6 +112,38 @@ test('GET /api/siswa?page=abc&limit=abc memakai nilai bawaan', async () => {
   assert.equal(body.data.limit, 10);
 });
 
+test('GET /api/siswa?search=% mencocokkan tanda persen literal, bukan semua baris', async () => {
+  const literalKode = `LIT-${Date.now()}`;
+  const literal = {
+    kode_siswa: literalKode,
+    nama_siswa: 'Siswa 100% Lulus',
+    alamat_siswa: 'Jalan Literal No. 1',
+    tgl_lahir_siswa: '2005-05-20',
+    jurusan_siswa: 'Teknik Informatika',
+  };
+
+  const created = await request('/api/siswa', {
+    method: 'POST',
+    body: JSON.stringify(literal),
+  });
+  assert.equal(created.response.status, 201);
+
+  try {
+    const { response, body } = await request(
+      `/api/siswa?search=${encodeURIComponent('%')}`,
+    );
+
+    assert.equal(response.status, 200);
+    assert.equal(body.data.total, 1);
+    assert.deepEqual(
+      body.data.items.map((item) => item.kode_siswa),
+      [literalKode],
+    );
+  } finally {
+    await request(`/api/siswa/${literalKode}`, { method: 'DELETE' });
+  }
+});
+
 test('GET /api/siswa?page=999999999999999999999 tidak menyebabkan 500', async () => {
   const { response, body } = await request(
     '/api/siswa?page=999999999999999999999&limit=1',

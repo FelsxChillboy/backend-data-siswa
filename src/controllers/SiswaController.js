@@ -26,6 +26,8 @@ const parsePagination = (query) => {
   return { page, limit };
 };
 
+const escapeLike = (value) => value.replace(/[\\%_]/g, (char) => `\\${char}`);
+
 const pickEditableFields = (body) => ({
   nama_siswa: body.nama_siswa,
   alamat_siswa: body.alamat_siswa,
@@ -36,15 +38,16 @@ const pickEditableFields = (body) => ({
 class SiswaController {
   static async index(req, res) {
     const { page, limit } = parsePagination(req.query);
-    const search =
+    const rawSearch =
       typeof req.query.search === 'string' ? req.query.search.trim() : '';
+    const pattern = `%${escapeLike(rawSearch)}%`;
 
-    const where = search
+    const where = rawSearch
       ? {
           [Op.or]: [
-            { kode_siswa: { [Op.iLike]: `%${search}%` } },
-            { nama_siswa: { [Op.iLike]: `%${search}%` } },
-            { jurusan_siswa: { [Op.iLike]: `%${search}%` } },
+            { kode_siswa: { [Op.iLike]: pattern } },
+            { nama_siswa: { [Op.iLike]: pattern } },
+            { jurusan_siswa: { [Op.iLike]: pattern } },
           ],
         }
       : {};
