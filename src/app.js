@@ -3,6 +3,7 @@ import express from 'express';
 import morgan from 'morgan';
 
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
+import siswaRoutes from './routes/siswaRoutes.js';
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.get('/api/health', (req, res) => {
     data: { status: 'ok' },
   });
 });
+
+app.use('/api/siswa', siswaRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
